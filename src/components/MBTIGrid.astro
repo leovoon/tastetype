@@ -1,0 +1,33 @@
+---
+// MBTI types and their display names
+const mbtiTypes = [
+  { code: 'ISFJ', label: 'ISFJ', animal: 'Bear' },
+  { code: 'INFJ', label: 'INFJ', animal: 'Dog' },
+  { code: 'INFP', label: 'INFP', animal: 'Cat' },
+  { code: 'INTJ', label: 'INTJ', animal: 'Shiba Inu' },
+  { code: 'ESFP', label: 'ESFP', animal: 'Panda' },
+  { code: 'ENFJ', label: 'ENFJ', animal: 'Fox' },
+  { code: 'ENFP', label: 'ENFP', animal: 'Hamster' },
+  { code: 'ENTJ', label: 'ENTJ', animal: 'Wolf' },
+  { code: 'ISTJ', label: 'ISTJ', animal: 'Owl' },
+  { code: 'ISTP', label: 'ISTP', animal: 'Otter' },
+  { code: 'ISFP', label: 'ISFP', animal: 'Rabbit' },
+  { code: 'INTP', label: 'INTP', animal: 'Hedgehog' },
+  { code: 'ESTP', label: 'ESTP', animal: 'Tiger' },
+  { code: 'ESTJ', label: 'ESTJ', animal: 'Lion' },
+  { code: 'ESFJ', label: 'ESFJ', animal: 'Penguin' },
+  { code: 'ENTP', label: 'ENTP', animal: 'Monkey' },
+];
+
+---
+
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 justify-items-center items-center py-8">
+  {mbtiTypes.map((type) => (
+    <a href={`/suggestion/${type.code}`} class="bg-[#fffaf4] rounded-3xl shadow-md p-6 w-32 text-center cursor-pointer outline-none transition-shadow focus:shadow-lg hover:shadow-lg block" title={type.animal} tabindex="0">
+      <div class="w-14 h-14 mx-auto mb-2 flex items-center justify-center bg-[#fbeee6] rounded-full text-lg font-semibold text-[#b89a7c]">
+        {type.animal}
+      </div>
+      <div class="mt-1 text-lg font-bold text-[#a07d5e] tracking-wide">{type.code}</div>
+    </a>
+  ))}
+</div>

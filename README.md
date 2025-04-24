@@ -1,13 +1,30 @@
-# Astro with Tailwind
+# TasteType
 
-```sh
-bun create astro@latest -- --template with-tailwindcss
+MBTI-based food recommendation app that suggests personalized meal options based on your personality type.
+
+## Features
+
+- MBTI personality type selection
+- Personalized food recommendations for each MBTI type
+- Meal time options (breakfast, lunch, dinner, late-night snack)
+- Visual personality type selection with unique icons
+
+## Getting Started
+
+```bash
+# Install dependencies
+bun install
+
+# Start development server
+bun dev
+
+# Build for production
+bun build
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/with-tailwindcss)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/with-tailwindcss)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/with-tailwindcss/devcontainer.json)
+## Technologies
 
-Astro comes with [Tailwind](https://tailwindcss.com) support out of the box. This example showcases how to style your Astro project with Tailwind.
-
-For complete setup instructions, please see our [Tailwind Integration Guide](https://docs.astro.build/en/guides/integrations-guide/tailwind).
+- [Astro](https://astro.build)
+- [Svelte](https://svelte.dev)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Google Gemini AI](https://ai.google.dev/)

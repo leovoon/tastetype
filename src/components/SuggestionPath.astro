@@ -1,0 +1,18 @@
+---
+import {  getEntry } from 'astro:content';
+const { mbtiType } = Astro.props;
+import type { CollectionEntry } from 'astro:content';
+
+
+const entry: CollectionEntry<'suggestions'> | undefined = await getEntry('suggestions', mbtiType?.toLowerCase());
+
+---
+<div class="flex flex-col gap-4 py-8 max-w-md mx-auto">
+  
+  {entry && entry.data.steps.map((step) => (
+    <div class="flex items-center gap-4 bg-[#f7f6f3] rounded-2xl shadow p-5">
+      <div class="text-3xl select-none">{step.icon}</div>
+      <div class="text-base sm:text-lg font-semibold text-[#7c6a58]">{step.text}</div>
+    </div>
+  ))}
+</div>

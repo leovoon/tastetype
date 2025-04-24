@@ -1,0 +1,90 @@
+---
+import SuggestionDisplay from '../../components/SuggestionDisplay.svelte';
+import '../../styles/global.css';
+import { validMbtiTypes } from '../../lib/mbtiTypes';
+import { REPO_URL, AUTHOR_NAME, COPYRIGHT_YEAR, APP_NAME, APP_DESCRIPTION, APP_KEYWORDS, APP_URL } from '../../lib/constants';
+
+// Get the MBTI type from the URL parameters
+const { mbti } = Astro.params;
+
+// MBTI type descriptions and icons - same as in MbtiSelector for consistency
+const mbtiInfo = {
+  INFP: { icon: '🦄', description: '夢想家', bgColor: 'bg-purple-50', textColor: 'text-purple-700', iconBg: 'bg-purple-100' },
+  INFJ: { icon: '🔮', description: '智者', bgColor: 'bg-purple-50', textColor: 'text-purple-800', iconBg: 'bg-purple-100' },
+  INTP: { icon: '🧠', description: '思想家', bgColor: 'bg-pink-50', textColor: 'text-pink-700', iconBg: 'bg-pink-100' },
+  INTJ: { icon: '🧩', description: '策略家', bgColor: 'bg-green-50', textColor: 'text-green-700', iconBg: 'bg-green-100' },
+  ISFP: { icon: '🎨', description: '藝術家', bgColor: 'bg-yellow-50', textColor: 'text-amber-700', iconBg: 'bg-amber-100' },
+  ISFJ: { icon: '🏡', description: '守護者', bgColor: 'bg-yellow-50', textColor: 'text-amber-800', iconBg: 'bg-amber-100' },
+  ISTP: { icon: '🔧', description: '工匠', bgColor: 'bg-blue-50', textColor: 'text-blue-700', iconBg: 'bg-blue-100' },
+  ISTJ: { icon: '📊', description: '檢查者', bgColor: 'bg-blue-50', textColor: 'text-blue-800', iconBg: 'bg-blue-100' },
+  ENFP: { icon: '✨', description: '冒險家', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700', iconBg: 'bg-yellow-100' },
+  ENFJ: { icon: '🌟', description: '主角', bgColor: 'bg-yellow-50', textColor: 'text-yellow-800', iconBg: 'bg-yellow-100' },
+  ENTP: { icon: '💡', description: '辯論家', bgColor: 'bg-orange-50', textColor: 'text-orange-700', iconBg: 'bg-orange-100' },
+  ENTJ: { icon: '👑', description: '指揮官', bgColor: 'bg-orange-50', textColor: 'text-orange-800', iconBg: 'bg-orange-100' },
+  ESFP: { icon: '🎭', description: '表演者', bgColor: 'bg-red-50', textColor: 'text-red-700', iconBg: 'bg-red-100' },
+  ESFJ: { icon: '🤝', description: '執行者', bgColor: 'bg-yellow-50', textColor: 'text-yellow-800', iconBg: 'bg-yellow-100' },
+  ESTP: { icon: '🏄', description: '企業家', bgColor: 'bg-orange-50', textColor: 'text-orange-700', iconBg: 'bg-orange-100' },
+  ESTJ: { icon: '⚖️', description: '管理者', bgColor: 'bg-blue-50', textColor: 'text-blue-800', iconBg: 'bg-blue-100' }
+};
+
+// Get current MBTI info
+const currentMbti = mbtiInfo[mbti as keyof typeof mbtiInfo];
+const bgColorClass = currentMbti?.bgColor || 'bg-gray-50';
+
+export async function getStaticPaths() {
+  return validMbtiTypes.map(type => ({
+    params: { mbti: type },
+  }));
+}
+---
+
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="description" content={`${APP_NAME} - ${mbti} ${currentMbti?.description} 專屬飲食推薦，${APP_DESCRIPTION}`} />
+    <meta name="keywords" content={`${mbti}, MBTI, 飲食推薦, ${currentMbti?.description}, ${APP_KEYWORDS}`} />
+    <meta property="og:title" content={`${APP_NAME} | ${mbti} 飲食推薦`} />
+    <meta property="og:description" content={`${mbti} ${currentMbti?.description} 專屬飲食推薦，${APP_DESCRIPTION}`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={`${APP_URL}suggestion/${mbti}`} />
+    <meta property="og:image" content="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>{APP_NAME} | {mbti} 飲食推薦</title>
+  </head>
+  <body>
+    <main class={`${bgColorClass} min-h-screen flex flex-col items-center py-8 px-4`}>
+      <!-- Header Section -->
+      <div class="w-full max-w-4xl mx-auto mb-8">
+        <div class="flex flex-col md:flex-row items-center justify-between">
+          <a href="/" class={`${currentMbti?.textColor} bg-white self-start shadow-sm hover:shadow-md font-medium py-2 px-5 rounded-full mb-4 md:mb-0 transition-all duration-300 flex items-center`}>
+            <span class="mr-2 text-lg">←</span> 返回
+          </a>
+
+          <div class="flex items-center">
+            <div class={`w-12 h-12 flex items-center justify-center ${currentMbti?.iconBg} rounded-full mr-3`}>
+              <span class="text-2xl">{currentMbti?.icon}</span>
+            </div>
+            <h1 class={`text-2xl md:text-3xl font-bold ${currentMbti?.textColor}`}>
+              {mbti} <span class={`text-lg md:text-xl font-normal ${currentMbti?.textColor} opacity-80`}>{currentMbti?.description}</span>
+            </h1>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <SuggestionDisplay {mbti} client:load />
+
+      <!-- Footer -->
+      <footer class="mt-10 text-center text-sm">
+        <a href={REPO_URL} target="_blank" rel="noopener noreferrer" class={`bg-white shadow-sm px-4 py-2 rounded-full items-center inline-flex items-center gap-1 ${currentMbti?.textColor} hover:opacity-80 transition-colors`}>
+          <img src="/github-icon.svg" alt="GitHub" class="w-5 h-5" />
+          <p class={`${currentMbti?.textColor} inline-block`}>© {COPYRIGHT_YEAR} {APP_NAME} | {AUTHOR_NAME}</p>
+        </a>
+      </footer>
+    </main>
+  </body>
+</html>

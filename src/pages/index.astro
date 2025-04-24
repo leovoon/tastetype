@@ -1,25 +1,45 @@
 ---
+import MbtiSelector from '../components/MbtiSelector.svelte';
 import '../styles/global.css';
-// Component Imports
-import Button from '../components/Button.astro';
-
-// Full Astro Component Syntax:
-// https://docs.astro.build/basics/astro-components/
+import { REPO_URL, AUTHOR_NAME, COPYRIGHT_YEAR, APP_NAME, APP_DESCRIPTION, APP_KEYWORDS, APP_URL } from '../lib/constants';
 ---
 
-<html lang="en">
+<html lang="zh-Hant">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro + TailwindCSS</title>
+		<meta name="description" content={`${APP_NAME} - ${APP_DESCRIPTION}`} />
+		<meta name="keywords" content={APP_KEYWORDS} />
+		<meta property="og:title" content={`${APP_NAME} | MBTI 飲食推薦`} />
+		<meta property="og:description" content={APP_DESCRIPTION} />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={APP_URL} />
+		<meta property="og:image" content="/favicon.svg" />
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+		<title>{APP_NAME} | MBTI 飲食推薦</title>
 	</head>
 
 	<body>
-		<div class="grid place-items-center h-screen content-center">
-			<Button>Tailwind Button in Astro!</Button>
-			<a href="/markdown-page" class="p-4 underline">Markdown is also supported...</a>
-		</div>
+		<main class="bg-gradient-to-b from-neutral-50 to-stone-50 min-h-screen flex flex-col items-center justify-center py-10 px-4">
+			<div class="text-center mb-8">
+				<h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2 tracking-tight">今天吃什麼呢？</h1>
+				<h2 class="text-xl md:text-2xl font-medium text-gray-600">選你的 MBTI 類型</h2>
+			</div>
+
+			<div class="w-full">
+				<MbtiSelector client:load />
+			</div>
+
+			<footer class="mt-10 text-center text-gray-500 text-sm">
+				<a href={REPO_URL} target="_blank" rel="noopener noreferrer" class="bg-white shadow-sm px-4 py-2 rounded-full items-center inline-flex items-center gap-1 hover:opacity-80 transition-colors">
+					<img src="/github-icon.svg" alt="GitHub" class="w-5 h-5" />
+					<p class="inline-block">© {COPYRIGHT_YEAR} {APP_NAME} | {AUTHOR_NAME}</p>
+				</a>
+			</footer>
+		</main>
 	</body>
 </html>
