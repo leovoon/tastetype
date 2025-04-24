@@ -11,7 +11,9 @@ export default defineConfig({
 		plugins: [tailwindcss()]
 	},
 	output: 'server',
-	adapter: vercel(),
+	adapter: vercel({
+		isr: true,
+	}),
 	env: {
 		schema: {
 			GEMINI_API_KEY: envField.string({ context: "server", access: "secret" }),
