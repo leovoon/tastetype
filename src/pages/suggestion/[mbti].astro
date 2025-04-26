@@ -65,7 +65,7 @@ export async function getStaticPaths() {
         <div class="flex flex-col md:flex-row items-center justify-between">
           <div class="flex items-center gap-4">
             <a href="/" class={`${currentMbti?.textColor} bg-white self-start shadow-sm hover:shadow-md font-medium py-2 px-5 rounded-full transition-all duration-300 flex items-center`}>
-              <span class="mr-2 text-lg">←</span> 返回
+              <span class="text-lg">←</span>
             </a>
             <LanguageToggle client:load /> {/* Add toggle here */}
           </div>
@@ -86,7 +86,7 @@ export async function getStaticPaths() {
 
       <!-- Footer -->
       <footer class="mt-10 text-center text-sm">
-        <a href={REPO_URL} target="_blank" rel="noopener noreferrer" class={`bg-white shadow-sm px-4 py-2 rounded-full items-center inline-flex items-center gap-1 ${currentMbti?.textColor} hover:opacity-80 transition-colors`}>
+        <a href={REPO_URL} target="_blank" rel="noopener noreferrer" class={`bg-white shadow-sm px-4 py-2 rounded-full inline-flex items-center gap-1 ${currentMbti?.textColor} hover:opacity-80 transition-colors`}>
           <img src="/github-icon.svg" alt="GitHub" class="w-5 h-5" />
           <p class={`${currentMbti?.textColor} inline-block`}>© {COPYRIGHT_YEAR} {APP_NAME} | {AUTHOR_NAME}</p>
         </a>

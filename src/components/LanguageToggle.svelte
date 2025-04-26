@@ -22,9 +22,9 @@
 <button
   on:click={toggleLanguage}
   class="px-3 cursor-pointer py-1.5 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
-  aria-label={currentLang === 'en' ? 'Switch to Chinese' : '切换到英文'}
+  aria-label={currentLang === 'en' ? '中文' : '英文'}
 >
-  {currentLang === 'en' ? 'Switch to Chinese' : '切换到英文'}
+  {currentLang === 'en' ? '切换到中文' : 'Switch to English'}
 </button>
 
 <style>
