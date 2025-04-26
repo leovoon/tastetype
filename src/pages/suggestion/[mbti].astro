@@ -1,8 +1,11 @@
 ---
 import SuggestionDisplay from '../../components/SuggestionDisplay.svelte';
+import LanguageToggle from '../../components/LanguageToggle.svelte'; // Import the toggle
 import '../../styles/global.css';
 import { validMbtiTypes } from '../../lib/mbtiTypes';
 import { REPO_URL, AUTHOR_NAME, COPYRIGHT_YEAR, APP_NAME, APP_DESCRIPTION, APP_KEYWORDS, APP_URL } from '../../lib/constants';
+
+export const prerender = true;
 
 // Get the MBTI type from the URL parameters
 const { mbti } = Astro.params;
@@ -60,11 +63,14 @@ export async function getStaticPaths() {
       <!-- Header Section -->
       <div class="w-full max-w-4xl mx-auto mb-8">
         <div class="flex flex-col md:flex-row items-center justify-between">
-          <a href="/" class={`${currentMbti?.textColor} bg-white self-start shadow-sm hover:shadow-md font-medium py-2 px-5 rounded-full mb-4 md:mb-0 transition-all duration-300 flex items-center`}>
-            <span class="mr-2 text-lg">←</span> 返回
-          </a>
+          <div class="flex items-center gap-4">
+            <a href="/" class={`${currentMbti?.textColor} bg-white self-start shadow-sm hover:shadow-md font-medium py-2 px-5 rounded-full transition-all duration-300 flex items-center`}>
+              <span class="mr-2 text-lg">←</span> 返回
+            </a>
+            <LanguageToggle client:load /> {/* Add toggle here */}
+          </div>
 
-          <div class="flex items-center">
+          <div class="flex items-center mt-4 md:mt-0">
             <div class={`w-12 h-12 flex items-center justify-center ${currentMbti?.iconBg} rounded-full mr-3`}>
               <span class="text-2xl">{currentMbti?.icon}</span>
             </div>

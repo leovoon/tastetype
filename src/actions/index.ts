@@ -12,18 +12,19 @@ export const server = {
   getFoodSuggestion: defineAction({
     accept: 'json',
     input: z.object({
+      lang: z.enum(['en', 'zh']).optional().default('zh'), // Add language input
       mbti: z.string().refine(mbti => validMbtiTypes.includes(mbti.toUpperCase()), {
         message: "Invalid MBTI type provided."
       }),
       // Need the origin to construct the API URL
       origin: z.string().url()
     }),
-    handler: async ({ mbti, origin }): Promise<FoodSuggestion> => {
+    handler: async ({ mbti, origin, lang }): Promise<FoodSuggestion> => {
       try {
         const response = await fetch(`${origin}/api/food-suggestion`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mbti: mbti.toUpperCase() }), // Ensure uppercase
+          body: JSON.stringify({ mbti: mbti.toUpperCase(), lang }), // Pass lang to API
         });
 
         if (!response.ok) {

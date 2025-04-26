@@ -1,6 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { actions } from "astro:actions";
+    import { language } from '../stores/languageStore'; // Import from the centralized store
+    import { get } from 'svelte/store'; // Import get to read store value outside component
     import { z } from "zod";
     import { foodSuggestionSchema } from "../lib/schemas";
 
@@ -14,6 +16,16 @@
     let selectedApproach: "strengths" | "weaknesses" | null = null;
     let selectedMealType: "breakfast" | "lunch" | "dinner" | "night_snack" | null = null;
     let filteredRecommendations: string[] = [];
+    let currentLang: 'en' | 'zh';
+
+    // Subscribe to language changes
+    language.subscribe(value => {
+        currentLang = value;
+        // Re-filter recommendations if language changes after initial load and selection
+        if (suggestionData && selectedMealType) {
+            filterRecommendations();
+        }
+    });
 
     function selectApproach(approach: "strengths" | "weaknesses") {
         selectedApproach = approach;
@@ -26,18 +38,21 @@
     }
 
     function getMealTypeTitle(mealType: "breakfast" | "lunch" | "dinner" | "night_snack"): string {
-        switch (mealType) {
-            case "breakfast":
-                return "早餐建議";
-            case "lunch":
-                return "午餐建議";
-            case "dinner":
-                return "晚餐建議";
-            case "night_snack":
-                return "宵夜建議";
-            default:
-                return "飲食建議";
-        }
+        const titles = {
+            en: {
+                breakfast: "Breakfast Suggestions",
+                lunch: "Lunch Suggestions",
+                dinner: "Dinner Suggestions",
+                night_snack: "Late-night Snack Suggestions",
+            },
+            zh: {
+                breakfast: "早餐建議",
+                lunch: "午餐建議",
+                dinner: "晚餐建議",
+                night_snack: "宵夜建議",
+            }
+        };
+        return titles[currentLang]?.[mealType] || "Dietary Suggestions"; // Fallback
     }
 
     function filterRecommendations() {
@@ -79,10 +94,14 @@
         isLoading = true;
         error = null;
         try {
-            // Call the Astro Action
+            // Read the current language from the store
+            const lang = get(language);
+
+            // Call the Astro Action, passing the language
             const result = await actions.getFoodSuggestion({
                 mbti: mbti,
                 origin: window.location.origin, // Provide the origin for the API call
+                lang: lang // Pass the current language
             });
 
             // Astro Actions return { data, error }
@@ -188,13 +207,13 @@
     <div class="w-full max-w-4xl mx-auto">
         <div class="bg-white rounded-xl p-6 md:p-8 shadow-sm text-center">
             <div class="text-4xl mb-4">⚠️</div>
-            <h2 class="text-xl font-bold mb-3 text-red-600">發生錯誤</h2>
+            <h2 class="text-xl font-bold mb-3 text-red-600">{currentLang === 'en' ? 'An Error Occurred' : '發生錯誤'}</h2>
             <p class="text-gray-700 font-medium">{error}</p>
             <button
                 class="mt-6 px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-medium transition-all duration-300 shadow-sm"
                 on:click={() => window.location.reload()}
             >
-                重新載入
+                {currentLang === 'en' ? 'Reload' : '重新載入'}
             </button>
         </div>
     </div>
@@ -210,11 +229,11 @@
 
                     <div class="mb-6">
                         <h3 class="text-xl font-semibold mb-3 flex items-center text-gray-700">
-                            <span class="text-gray-500 mr-2">--</span> 性格分析
+                            <span class="text-gray-500 mr-2">--</span> {currentLang === 'en' ? 'Personality Analysis' : '性格分析'}
                         </h3>
                         <div class="bg-gray-50 rounded-lg p-4 mb-3">
                             <p class="mb-3 flex items-start">
-                                <span class="text-teal-700 font-semibold mr-2 flex-shrink-0">💪🏼 優勢：</span>
+                                <span class="text-teal-700 font-semibold mr-2 flex-shrink-0">💪🏼 {currentLang === 'en' ? 'Strengths:' : '優勢：'}</span>
                                 <span class="flex flex-wrap gap-2">
                                     {#each suggestionData.analysis.strengths as strength}
                                         <span class="inline-block bg-teal-600/90 bg-opacity-60 px-3 py-1 rounded-md text-sm font-medium text-white shadow-sm">{strength}</span>
@@ -222,7 +241,7 @@
                                 </span>
                             </p>
                             <p class="flex items-start">
-                                <span class="text-blue-700 font-semibold mr-2 flex-shrink-0">🥱 劣勢：</span>
+                                <span class="text-blue-700 font-semibold mr-2 flex-shrink-0">🥱 {currentLang === 'en' ? 'Weaknesses:' : '劣勢：'}</span>
                                 <span class="flex flex-wrap gap-2">
                                     {#each suggestionData.analysis.weaknesses as weakness}
                                         <span class="inline-block bg-blue-600 bg-opacity-60 px-3 py-1 rounded-md text-sm font-medium text-white shadow-sm">{weakness}</span>
@@ -234,11 +253,11 @@
 
                     <div>
                         <h3 class="text-xl font-semibold mb-3 flex items-center text-gray-700">
-                            <span class="text-gray-500 mr-2">--</span> 決策路徑
+                            <span class="text-gray-500 mr-2">--</span> {currentLang === 'en' ? 'Decision Path' : '決策路徑'}
                         </h3>
                         <div class="bg-gray-50 rounded-lg p-4">
                             <div class="mb-4">
-                                <span class="text-teal-700 font-semibold block mb-2">▎優勢應用</span>
+                                <span class="text-teal-700 font-semibold block mb-2">▎{currentLang === 'en' ? 'Strength Application' : '優勢應用'}</span>
                                 <div class="flex flex-wrap items-center justify-between">
                                     {#each suggestionData.keywords.strength_path as keyword, i}
                                         <div class="flex flex-1 items-center mb-2 mr-1">
@@ -251,7 +270,7 @@
                                 </div>
                             </div>
                             <div>
-                                <span class="text-blue-700 font-semibold block mb-2">▎劣勢平衡</span>
+                                <span class="text-blue-700 font-semibold block mb-2">▎{currentLang === 'en' ? 'Weakness Balancing' : '劣勢平衡'}</span>
                                 <div class="flex flex-wrap items-center">
                                     {#each suggestionData.keywords.weakness_path as keyword, i}
                                         <div class="flex flex-1 items-center mb-2 mr-1">
@@ -272,12 +291,12 @@
         <!-- Selection Card -->
         <div class="bg-white rounded-xl p-4 sm:p-6 md:p-8 shadow-sm mb-6">
             <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-700">
-                <span class="text-gray-500 mr-2">##</span> 選擇偏好
+                <span class="text-gray-500 mr-2">##</span> {currentLang === 'en' ? 'Select Preferences' : '選擇偏好'}
             </h3>
 
             <!-- Approach Selection -->
             <div class="mb-6">
-                <h4 class="text-md font-medium mb-3 text-gray-600">選擇路徑：</h4>
+                <h4 class="text-md font-medium mb-3 text-gray-600">{currentLang === 'en' ? 'Choose Path:' : '選擇路徑：'}</h4>
                 <div class="flex flex-wrap gap-3 grid grid-cols-2">
                     <button
                         on:click={() => selectApproach("strengths")}
@@ -287,7 +306,7 @@
                                 : "bg-teal-50 text-teal-700 hover:bg-teal-100 shadow-sm"
                         }`}
                     >
-                        <span class="mr-2 text-xl">💪</span> 應用優勢
+                        <span class="mr-2 text-xl">💪</span> {currentLang === 'en' ? 'Apply Strengths' : '應用優勢'}
                     </button>
                     <button
                         on:click={() => selectApproach("weaknesses")}
@@ -297,14 +316,14 @@
                                 : "bg-blue-50 text-blue-700 hover:bg-blue-100 shadow-sm"
                         }`}
                     >
-                        <span class="mr-2 text-xl">🤔</span> 管理劣勢
+                        <span class="mr-2 text-xl">🤔</span> {currentLang === 'en' ? 'Manage Weaknesses' : '管理劣勢'}
                     </button>
                 </div>
             </div>
 
             <!-- Meal Type Selection -->
             <div>
-                <h4 class="text-md font-medium mb-3 text-gray-600">選擇餐點：</h4>
+                <h4 class="text-md font-medium mb-3 text-gray-600">{currentLang === 'en' ? 'Select Meal:' : '選擇餐點：'}</h4>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <button
                         on:click={() => selectMealType("breakfast")}
@@ -317,7 +336,7 @@
                         <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                         <div class="flex flex-col items-center">
                             <span class="text-3xl mb-1">🍳</span>
-                            <span class="font-medium">早餐</span>
+                            <span class="font-medium">{currentLang === 'en' ? 'Breakfast' : '早餐'}</span>
                             <div class="particle" style="width: 8px; height: 8px; top: 20%; left: 20%;"></div>
                             <div class="particle" style="width: 6px; height: 6px; top: 60%; left: 80%;"></div>
                         </div>
@@ -333,7 +352,7 @@
                         <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                         <div class="flex flex-col items-center">
                             <span class="text-3xl mb-1">🍱</span>
-                            <span class="font-medium">午餐</span>
+                            <span class="font-medium">{currentLang === 'en' ? 'Lunch' : '午餐'}</span>
                             <div class="particle" style="width: 7px; height: 7px; top: 30%; left: 70%;"></div>
                             <div class="particle" style="width: 5px; height: 5px; top: 50%; left: 30%;"></div>
                         </div>
@@ -349,7 +368,7 @@
                         <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                         <div class="flex flex-col items-center">
                             <span class="text-3xl mb-1">🍲</span>
-                            <span class="font-medium">晚餐</span>
+                            <span class="font-medium">{currentLang === 'en' ? 'Dinner' : '晚餐'}</span>
                             <div class="particle" style="width: 8px; height: 8px; top: 40%; left: 20%;"></div>
                             <div class="particle" style="width: 6px; height: 6px; top: 70%; left: 60%;"></div>
                         </div>
@@ -365,7 +384,7 @@
                         <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                         <div class="flex flex-col items-center">
                             <span class="text-3xl mb-1">🍦</span>
-                            <span class="font-medium">宵夜</span>
+                            <span class="font-medium">{currentLang === 'en' ? 'Late Snack' : '宵夜'}</span>
                             <div class="particle" style="width: 7px; height: 7px; top: 25%; left: 75%;"></div>
                             <div class="particle" style="width: 5px; height: 5px; top: 65%; left: 25%;"></div>
                         </div>
@@ -386,7 +405,7 @@
                             class:text-teal-700={selectedApproach === "strengths"}
                             class:bg-blue-100={selectedApproach === "weaknesses"}
                             class:text-blue-700={selectedApproach === "weaknesses"}>
-                            {selectedApproach === "strengths" ? "優勢應用" : "劣勢平衡"}
+                            {currentLang === 'en' ? (selectedApproach === "strengths" ? "Strength Application" : "Weakness Balancing") : (selectedApproach === "strengths" ? "優勢應用" : "劣勢平衡")}
                         </span>
                     </h3>
 
@@ -405,18 +424,18 @@
                         </div>
                     {:else}
                         <div class="bg-gray-50 rounded-lg p-6 text-center">
-                            <p class="text-gray-500">找不到適合此焦點的建議。</p>
+                            <p class="text-gray-500">{currentLang === 'en' ? 'No suggestions found for this focus.' : '找不到適合此焦點的建議。'}</p>
                         </div>
                     {/if}
                 </div>
             {:else}
                 <div class="bg-white rounded-xl p-8 shadow-sm text-center">
                     {#if selectedApproach}
-                        <p class="text-gray-600 font-medium text-lg">請選擇一個餐點類型以查看建議</p>
+                        <p class="text-gray-600 font-medium text-lg">{currentLang === 'en' ? 'Please select a meal type to see suggestions' : '請選擇一個餐點類型以查看建議'}</p>
                     {:else if selectedMealType}
-                        <p class="text-gray-600 font-medium text-lg">請選擇優勢或劣勢路徑以查看建議</p>
+                        <p class="text-gray-600 font-medium text-lg">{currentLang === 'en' ? 'Please select a strength or weakness path to see suggestions' : '請選擇優勢或劣勢路徑以查看建議'}</p>
                     {:else}
-                        <p class="text-gray-600 font-medium text-lg">請選擇路徑和餐點類型以查看建議</p>
+                        <p class="text-gray-600 font-medium text-lg">{currentLang === 'en' ? 'Please select a path and meal type to see suggestions' : '請選擇路徑和餐點類型以查看建議'}</p>
                     {/if}
                 </div>
             {/if}
