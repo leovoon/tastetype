@@ -1,90 +1,105 @@
 ---
-import MbtiSelector from '../components/MbtiSelector.svelte';
-import LanguageToggle from '../components/LanguageToggle.svelte'; // Import the toggle
-import '../styles/global.css';
-import { REPO_URL, AUTHOR_NAME, COPYRIGHT_YEAR, APP_NAME, APP_DESCRIPTION, APP_KEYWORDS, APP_URL } from '../lib/constants';
+import MbtiSelector from "../components/MbtiSelector.svelte";
+import LanguageToggle from "../components/LanguageToggle.svelte"; // Import the toggle
+import "../styles/global.css";
+import {
+	REPO_URL,
+	AUTHOR_NAME,
+	COPYRIGHT_YEAR,
+	APP_NAME,
+	APP_DESCRIPTION,
+	APP_KEYWORDS,
+	APP_URL,
+} from "../lib/constants";
+import Main from "../layouts/main.astro";
 ---
 
-<html lang="zh-Hant">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content={`${APP_NAME} - ${APP_DESCRIPTION}`} />
-		<meta name="keywords" content={APP_KEYWORDS} />
-		<meta property="og:title" content={`${APP_NAME} | MBTI 飲食推薦`} />
-		<meta property="og:description" content={APP_DESCRIPTION} />
-		<meta property="og:type" content="website" />
-		<meta property="og:url" content={APP_URL} />
-		<meta property="og:image" content="/favicon.svg" />
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-		<title>{APP_NAME} | MBTI 飲食推薦</title>
-	</head>
+<Main
+	content={{
+		title: `${APP_NAME} - Select MBTI`,
+		description: "Select your MBTI type",
+		keywords: "MBTI, food, recommendation, suggestion, personality",
+		url: `${APP_URL}suggestion`,
+	}}
+>
+	<main
+		class="bg-gradient-to-b from-neutral-50 to-stone-50 min-h-screen flex flex-col items-center justify-center pt-10 pb-6 px-4"
+	>
+		<div class="text-center mb-4">
+			<h1
+				id="main-heading"
+				class="text-3xl md:text-4xl font-bold text-gray-800 mb-2 tracking-tight"
+			>
+				今天吃什麼呢？
+			</h1>
+			<h2
+				id="sub-heading"
+				class="text-xl md:text-2xl font-medium text-gray-600"
+			>
+				選你的 MBTI 類型
+			</h2>
+		</div>
 
-	<body>
-		<main class="bg-gradient-to-b from-neutral-50 to-stone-50 min-h-screen flex flex-col items-center justify-center pt-10 pb-6 px-4">
-			<div class="text-center mb-4">
-				<h1 id="main-heading" class="text-3xl md:text-4xl font-bold text-gray-800 mb-2 tracking-tight">今天吃什麼呢？</h1>
-				<h2 id="sub-heading" class="text-xl md:text-2xl font-medium text-gray-600">選你的 MBTI 類型</h2>
-			</div>
+		<div class="w-full mt-6 flex justify-end pr-4 max-w-3xl mx-auto">
+			<LanguageToggle client:load />
+		</div>
 
-			<div class="mt-6 flex justify-center">
-				<LanguageToggle client:load />
-			</div>
+		<div class="w-full">
+			<MbtiSelector client:load />
+		</div>
 
-			<div class="w-full">
-				<MbtiSelector client:load />
-			</div>
+		<footer class="mt-10 text-center text-gray-500 text-sm">
+			<a
+				href={REPO_URL}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="bg-white shadow-sm px-4 py-2 rounded-full inline-flex items-center gap-1 hover:opacity-80 transition-colors"
+			>
+				<img src="/github-icon.svg" alt="GitHub" class="w-5 h-5" />
+				<p class="inline-block">
+					© {COPYRIGHT_YEAR}
+					{APP_NAME} | {AUTHOR_NAME}
+				</p>
+			</a>
+		</footer>
+	</main>
 
+	<script>
+		import { language } from "../stores/languageStore";
 
-			<footer class="mt-10 text-center text-gray-500 text-sm">
-				<a href={REPO_URL} target="_blank" rel="noopener noreferrer" class="bg-white shadow-sm px-4 py-2 rounded-full inline-flex items-center gap-1 hover:opacity-80 transition-colors">
-					<img src="/github-icon.svg" alt="GitHub" class="w-5 h-5" />
-					<p class="inline-block">© {COPYRIGHT_YEAR} {APP_NAME} | {AUTHOR_NAME}</p>
-				</a>
-			</footer>
-		</main>
-
-		<script >
-			import { language } from '../stores/languageStore';
-
-			const translations: Record<'en' | 'zh', { main: string; sub: string }> = {
+		const translations: Record<"en" | "zh", { main: string; sub: string }> =
+			{
 				en: {
 					main: "What should we eat today?",
-					sub: "Select your MBTI type"
+					sub: "Select your MBTI type",
 				},
 				zh: {
 					main: "今天吃什麼呢？",
-					sub: "選你的 MBTI 類型"
-				}
+					sub: "選你的 MBTI 類型",
+				},
 			};
 
-			const mainHeading = document.getElementById('main-heading');
-			const subHeading = document.getElementById('sub-heading');
+		const mainHeading = document.getElementById("main-heading");
+		const subHeading = document.getElementById("sub-heading");
 
-			// Function to update headings based on language
-			function updateHeadings(lang: 'en' | 'zh') {
-				if (mainHeading && subHeading) {
-					mainHeading.textContent = translations[lang].main;
-					subHeading.textContent = translations[lang].sub;
-				}
+		// Function to update headings based on language
+		function updateHeadings(lang: "en" | "zh") {
+			if (mainHeading && subHeading) {
+				mainHeading.textContent = translations[lang].main;
+				subHeading.textContent = translations[lang].sub;
 			}
+		}
 
-			// Subscribe to language changes
-			const unsubscribe = language.subscribe(lang => {
-				updateHeadings(lang);
-			});
-			
+		// Subscribe to language changes
+		const unsubscribe = language.subscribe((lang) => {
+			updateHeadings(lang);
+		});
 
-			// Set initial headings based on current language
-			// Need to get the initial value synchronously if possible, or wait for the first subscription trigger
-			// Svelte stores usually trigger the subscription immediately with the current value.
+		// Set initial headings based on current language
+		// Need to get the initial value synchronously if possible, or wait for the first subscription trigger
+		// Svelte stores usually trigger the subscription immediately with the current value.
 
-			// Clean up subscription when the component unmounts (important in frameworks like Svelte/Vue, less critical in Astro static scripts but good practice)
-			// Astro doesn't have a built-in unmount lifecycle for page scripts like this, so manual cleanup isn't standard.
-		</script>
-	</body>
-</html>
+		// Clean up subscription when the component unmounts (important in frameworks like Svelte/Vue, less critical in Astro static scripts but good practice)
+		// Astro doesn't have a built-in unmount lifecycle for page scripts like this, so manual cleanup isn't standard.
+	</script>
+</Main>

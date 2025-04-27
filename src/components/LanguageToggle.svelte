@@ -26,7 +26,3 @@
 >
   {currentLang === 'en' ? '切换到中文' : 'Switch to English'}
 </button>
-
-<style>
-  /* Add any specific styles if needed, otherwise rely on Tailwind */
-</style>

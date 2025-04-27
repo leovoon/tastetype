@@ -80,10 +80,10 @@
 					<!-- Card content -->
 					<div class="p-4 flex flex-col items-center justify-center h-full relative z-10">
 						<div class={`w-12 h-12 flex items-center justify-center ${iconBgColors[type]} rounded-full mb-2`}>
-							<span class="text-2xl">{mbtiInfo[type].icon}</span>
+							<span style={`view-transition-name: icon-${type}`} class="text-2xl">{mbtiInfo[type].icon}</span>
 						</div>
-						<div class={`text-base font-bold ${textColors[type]} mb-1`}>{type}</div>
-						<div class={`text-xs ${textColors[type]} opacity-90`}>{mbtiInfo[type].description}</div>
+						<div style={`view-transition-name: title-${type}`} class={`text-base font-bold ${textColors[type]} mb-1`}>{type}</div>
+						<div style={`view-transition-name: description-${type}`} class={`text-xs ${textColors[type]} opacity-90`}>{mbtiInfo[type].description}</div>
 					</div>
 				</div>
 			</a>

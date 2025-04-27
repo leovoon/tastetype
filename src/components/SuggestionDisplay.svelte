@@ -17,15 +17,7 @@
     let selectedApproach: "strengths" | "weaknesses" | null = null;
     let selectedMealType: "breakfast" | "lunch" | "dinner" | "night_snack" | null = null;
     let filteredRecommendations: string[] = [];
-    
-    const currentLang = derived(language, $language => $language);
-    
-    // Re-filter recommendations if language changes after initial load and selection
-    currentLang.subscribe(() => {
-        if (suggestionData && selectedMealType) {
-            filterRecommendations();
-        }
-    });
+
 
     function selectApproach(approach: "strengths" | "weaknesses") {
         selectedApproach = approach;
@@ -52,7 +44,7 @@
                 night_snack: "宵夜建議",
             }
         };
-        return titles[$currentLang]?.[mealType] || "Dietary Suggestions"; // Fallback
+        return titles[$language]?.[mealType] || "Dietary Suggestions"; // Fallback
     }
 
     function filterRecommendations() {
@@ -91,6 +83,29 @@
     }
 
     onMount(async () => {
+            
+    // Handle language changes directly
+    language.subscribe(() => {
+            isLoading = true;
+            error = null;
+            suggestionData = null;
+            console.log('Language changed, refreshing suggestions');
+            actions.getFoodSuggestion({
+                mbti: mbti,
+                origin: window.location.origin,
+                lang: get(language)
+            }).then(result => {
+                if(result.error) {
+                    throw new Error(result.error.message || "Failed to fetch suggestion data.");
+                }
+                suggestionData = result.data;
+                filterRecommendations();
+            }).catch(err => {
+                error = err.message;
+            }).finally(() => {
+                isLoading = false;
+            });
+        });
         isLoading = true;
         error = null;
         try {
@@ -207,13 +222,13 @@
     <div class="w-full max-w-4xl mx-auto">
         <div class="bg-white rounded-xl p-6 md:p-8 shadow-sm text-center">
             <div class="text-4xl mb-4">⚠️</div>
-            <h2 class="text-xl font-bold mb-3 text-red-600">{$currentLang === 'en' ? 'An Error Occurred' : '發生錯誤'}</h2>
+            <h2 class="text-xl font-bold mb-3 text-red-600">{$language === 'en' ? 'An Error Occurred' : '發生錯誤'}</h2>
             <p class="text-gray-700 font-medium">{error}</p>
             <button
                 class="mt-6 px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-medium transition-all duration-300 shadow-sm"
                 on:click={() => window.location.reload()}
             >
-                {$currentLang === 'en' ? 'Reload' : '重新載入'}
+                {$language === 'en' ? 'Reload' : '重新載入'}
             </button>
         </div>
     </div>
@@ -229,11 +244,11 @@
 
                     <div class="mb-6">
                         <h3 class="text-xl font-semibold mb-3 flex items-center text-gray-700">
-                            <span class="text-gray-500 mr-2">📈</span> {$currentLang === 'en' ? 'Personality Analysis' : '性格分析'}
+                            <span class="text-gray-500 mr-2">📈</span> {$language === 'en' ? 'Personality Analysis' : '性格分析'}
                         </h3>
                         <div class="bg-gray-50 rounded-lg p-4 mb-3">
                             <p class="mb-3 flex items-start">
-                                <span class="text-teal-700 font-semibold mr-2 flex-shrink-0">💪🏼 {$currentLang === 'en' ? 'Strengths:' : '優勢：'}</span>
+                                <span class="text-teal-700 font-semibold mr-2 flex-shrink-0">💪🏼 {$language === 'en' ? 'Strengths:' : '優勢：'}</span>
                                 <span class="flex flex-wrap gap-2">
                                     {#each suggestionData.analysis.strengths as strength}
                                         <span class="inline-block bg-teal-600/90 bg-opacity-60 px-3 py-1 rounded-md text-sm font-medium text-white shadow-sm">{strength}</span>
@@ -241,7 +256,7 @@
                                 </span>
                             </p>
                             <p class="flex items-start">
-                                <span class="text-blue-700 font-semibold mr-2 flex-shrink-0">🥱 {$currentLang === 'en' ? 'Weaknesses:' : '劣勢：'}</span>
+                                <span class="text-blue-700 font-semibold mr-2 flex-shrink-0">🥱 {$language === 'en' ? 'Weaknesses:' : '劣勢：'}</span>
                                 <span class="flex flex-wrap gap-2">
                                     {#each suggestionData.analysis.weaknesses as weakness}
                                         <span class="inline-block bg-blue-600 bg-opacity-60 px-3 py-1 rounded-md text-sm font-medium text-white shadow-sm">{weakness}</span>
@@ -253,15 +268,15 @@
 
                     <div>
                         <h3 class="text-xl font-semibold mb-3 flex items-center text-gray-700">
-                            <span class="text-gray-500 mr-2">🧭</span> {$currentLang === 'en' ? 'Decision Path' : '決策路徑'}
+                            <span class="text-gray-500 mr-2">🧭</span> {$language === 'en' ? 'Decision Path' : '決策路徑'}
                         </h3>
                         <div class="bg-gray-50 rounded-lg p-4">
                             <div class="mb-4">
-                                <span class="text-teal-700 font-semibold block mb-2">▎{$currentLang === 'en' ? 'Strength Application' : '優勢應用'}</span>
+                                <span class="text-teal-700 font-semibold block mb-2">▎{$language === 'en' ? 'Strength Application' : '優勢應用'}</span>
                                 <div class="flex flex-wrap items-center justify-between">
                                     {#each suggestionData.keywords.strength_path as keyword, i}
                                         <div class="flex flex-1 items-center mb-2 mr-1">
-                                            <span class="bg-teal-600/90 bg-opacity-60 {$currentLang === 'zh' ? 'tracking-[0.2em]' : 'tracking-normal'} px-4 py-1 rounded-md text-sm font-medium text-white shadow-sm [writing-mode:${$currentLang === 'zh' ? 'vertical-lr' : 'horizontal-tb'}]">{keyword}</span>
+                                            <span class="bg-teal-600/90 bg-opacity-60 {$language === 'zh' ? 'tracking-[0.2em]' : 'tracking-normal'} px-4 py-1 rounded-md text-sm font-medium text-white shadow-sm [writing-mode:${$language === 'zh' ? 'vertical-lr' : 'horizontal-tb'}]">{keyword}</span>
                                             {#if i < suggestionData.keywords.strength_path.length - 1}
                                                 <span class="mx-2 text-gray-500 flex-1 text-center">→</span>
                                             {/if}
@@ -270,11 +285,11 @@
                                 </div>
                             </div>
                             <div>
-                                <span class="text-blue-700 font-semibold block mb-2">▎{$currentLang === 'en' ? 'Weakness Balancing' : '劣勢平衡'}</span>
+                                <span class="text-blue-700 font-semibold block mb-2">▎{$language === 'en' ? 'Weakness Balancing' : '劣勢平衡'}</span>
                                 <div class="flex flex-wrap items-center">
                                     {#each suggestionData.keywords.weakness_path as keyword, i}
                                         <div class="flex flex-1 items-center mb-2 mr-1">
-                                            <span class="bg-blue-600 bg-opacity-60 {$currentLang === 'zh' ? 'tracking-[0.2em]' : 'tracking-normal'} px-4 py-1 rounded-md text-sm font-medium text-white shadow-sm [writing-mode:${$currentLang === 'zh' ? 'vertical-lr' : 'horizontal-tb'}]">{keyword}</span>
+                                            <span class="bg-blue-600 bg-opacity-60 {$language === 'zh' ? 'tracking-[0.2em]' : 'tracking-normal'} px-4 py-1 rounded-md text-sm font-medium text-white shadow-sm [writing-mode:${$language === 'zh' ? 'vertical-lr' : 'horizontal-tb'}]">{keyword}</span>
                                             {#if i < suggestionData.keywords.weakness_path.length - 1}
                                                 <span class="mx-2 text-gray-500 flex-1 text-center">→</span>
                                             {/if}
@@ -291,12 +306,12 @@
         <!-- Selection Card -->
         <div class="bg-white rounded-xl p-4 sm:p-6 md:p-8 shadow-sm mb-6">
             <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-700">
-                <span class="text-gray-500 mr-2">🎨</span> {$currentLang === 'en' ? 'Select Preferences' : '選擇偏好'}
+                <span class="text-gray-500 mr-2">🎨</span> {$language === 'en' ? 'Select Preferences' : '選擇偏好'}
             </h3>
 
             <!-- Approach Selection -->
             <div class="mb-6">
-                <h4 class="text-md font-medium mb-3 text-gray-600">{$currentLang === 'en' ? 'Choose Path:' : '選擇路徑：'}</h4>
+                <h4 class="text-md font-medium mb-3 text-gray-600">{$language === 'en' ? 'Choose Path:' : '選擇路徑：'}</h4>
                 <div class="flex-wrap gap-3 grid grid-cols-2">
                     <button
                         on:click={() => selectApproach("strengths")}
@@ -306,7 +321,7 @@
                                 : "bg-teal-50 text-teal-700 hover:bg-teal-100 shadow-sm"
                         }`}
                     >
-                        <span class="mr-2 text-xl">💪</span> {$currentLang === 'en' ? 'Apply Strengths' : '應用優勢'}
+                        <span class="mr-2 text-xl">💪</span> {$language === 'en' ? 'Apply Strengths' : '應用優勢'}
                     </button>
                     <button
                         on:click={() => selectApproach("weaknesses")}
@@ -316,14 +331,14 @@
                                 : "bg-blue-50 text-blue-700 hover:bg-blue-100 shadow-sm"
                         }`}
                     >
-                        <span class="mr-2 text-xl">🤔</span> {$currentLang === 'en' ? 'Manage Weaknesses' : '管理劣勢'}
+                        <span class="mr-2 text-xl">🤔</span> {$language === 'en' ? 'Manage Weaknesses' : '管理劣勢'}
                     </button>
                 </div>
             </div>
 
             <!-- Meal Type Selection -->
             <div>
-                <h4 class="text-md font-medium mb-3 text-gray-600">{$currentLang === 'en' ? 'Select Meal:' : '選擇餐點：'}</h4>
+                <h4 class="text-md font-medium mb-3 text-gray-600">{$language === 'en' ? 'Select Meal:' : '選擇餐點：'}</h4>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <button
                         on:click={() => selectMealType("breakfast")}
@@ -336,7 +351,7 @@
                         <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                         <div class="flex flex-col items-center">
                             <span class="text-3xl mb-1">🍳</span>
-                            <span class="font-medium">{$currentLang === 'en' ? 'Breakfast' : '早餐'}</span>
+                            <span class="font-medium">{$language === 'en' ? 'Breakfast' : '早餐'}</span>
                             <div class="particle" style="width: 8px; height: 8px; top: 20%; left: 20%;"></div>
                             <div class="particle" style="width: 6px; height: 6px; top: 60%; left: 80%;"></div>
                         </div>
@@ -352,7 +367,7 @@
                         <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                         <div class="flex flex-col items-center">
                             <span class="text-3xl mb-1">🍱</span>
-                            <span class="font-medium">{$currentLang === 'en' ? 'Lunch' : '午餐'}</span>
+                            <span class="font-medium">{$language === 'en' ? 'Lunch' : '午餐'}</span>
                             <div class="particle" style="width: 7px; height: 7px; top: 30%; left: 70%;"></div>
                             <div class="particle" style="width: 5px; height: 5px; top: 50%; left: 30%;"></div>
                         </div>
@@ -368,7 +383,7 @@
                         <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                         <div class="flex flex-col items-center">
                             <span class="text-3xl mb-1">🍲</span>
-                            <span class="font-medium">{$currentLang === 'en' ? 'Dinner' : '晚餐'}</span>
+                            <span class="font-medium">{$language === 'en' ? 'Dinner' : '晚餐'}</span>
                             <div class="particle" style="width: 8px; height: 8px; top: 40%; left: 20%;"></div>
                             <div class="particle" style="width: 6px; height: 6px; top: 70%; left: 60%;"></div>
                         </div>
@@ -384,7 +399,7 @@
                         <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                         <div class="flex flex-col items-center">
                             <span class="text-3xl mb-1">🍦</span>
-                            <span class="font-medium">{$currentLang === 'en' ? 'Late Snack' : '宵夜'}</span>
+                            <span class="font-medium">{$language === 'en' ? 'Late Snack' : '宵夜'}</span>
                             <div class="particle" style="width: 7px; height: 7px; top: 25%; left: 75%;"></div>
                             <div class="particle" style="width: 5px; height: 5px; top: 65%; left: 25%;"></div>
                         </div>
@@ -405,7 +420,7 @@
                             class:text-teal-700={selectedApproach === "strengths"}
                             class:bg-blue-100={selectedApproach === "weaknesses"}
                             class:text-blue-700={selectedApproach === "weaknesses"}>
-                            {$currentLang === 'en' ? (selectedApproach === "strengths" ? "Strength Application" : "Weakness Balancing") : (selectedApproach === "strengths" ? "優勢應用" : "劣勢平衡")}
+                            {$language === 'en' ? (selectedApproach === "strengths" ? "Strength Application" : "Weakness Balancing") : (selectedApproach === "strengths" ? "優勢應用" : "劣勢平衡")}
                         </span>
                     </h3>
 
@@ -424,18 +439,18 @@
                         </div>
                     {:else}
                         <div class="bg-gray-50 rounded-lg p-6 text-center">
-                            <p class="text-gray-500">{$currentLang === 'en' ? 'No suggestions found for this focus.' : '找不到適合此焦點的建議。'}</p>
+                            <p class="text-gray-500">{$language === 'en' ? 'No suggestions found for this focus.' : '找不到適合此焦點的建議。'}</p>
                         </div>
                     {/if}
                 </div>
             {:else}
                 <div class="bg-white rounded-xl p-8 shadow-sm text-center">
                     {#if selectedApproach}
-                        <p class="text-gray-600 font-medium text-lg">{$currentLang === 'en' ? 'Please select a meal type to see suggestions' : '請選擇一個餐點類型以查看建議'}</p>
+                        <p class="text-gray-600 font-medium text-lg">{$language === 'en' ? 'Please select a meal type to see suggestions' : '請選擇一個餐點類型以查看建議'}</p>
                     {:else if selectedMealType}
-                        <p class="text-gray-600 font-medium text-lg">{$currentLang === 'en' ? 'Please select a strength or weakness path to see suggestions' : '請選擇優勢或劣勢路徑以查看建議'}</p>
+                        <p class="text-gray-600 font-medium text-lg">{$language === 'en' ? 'Please select a strength or weakness path to see suggestions' : '請選擇優勢或劣勢路徑以查看建議'}</p>
                     {:else}
-                        <p class="text-gray-600 font-medium text-lg">{$currentLang === 'en' ? 'Please select a path and meal type to see suggestions' : '請選擇路徑和餐點類型以查看建議'}</p>
+                        <p class="text-gray-600 font-medium text-lg">{$language === 'en' ? 'Please select a path and meal type to see suggestions' : '請選擇路徑和餐點類型以查看建議'}</p>
                     {/if}
                 </div>
             {/if}
