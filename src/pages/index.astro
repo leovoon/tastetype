@@ -30,7 +30,7 @@ import Main from "../layouts/main.astro";
 				id="main-heading"
 				class="text-3xl md:text-4xl font-bold text-gray-800 mb-2 tracking-tight"
 			>
-				今天吃什麼呢？
+				今天吃什麼呢？ <sup>🇲🇾</sup>
 			</h1>
 			<h2
 				id="sub-heading"
@@ -85,7 +85,7 @@ import Main from "../layouts/main.astro";
 		// Function to update headings based on language
 		function updateHeadings(lang: "en" | "zh") {
 			if (mainHeading && subHeading) {
-				mainHeading.textContent = translations[lang].main;
+				mainHeading.innerHTML = translations[lang].main + ' <sup>🇲🇾</sup>';
 				subHeading.textContent = translations[lang].sub;
 			}
 		}
